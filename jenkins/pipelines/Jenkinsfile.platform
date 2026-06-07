@@ -1,0 +1,46 @@
+@Library('enterprise-devops-platform') _
+
+pipeline {
+  agent any
+
+  options {
+    timestamps()
+    ansiColor('xterm')
+    buildDiscarder(logRotator(numToKeepStr: '50'))
+    disableConcurrentBuilds()
+  }
+
+  parameters {
+    choice(name: 'STACK', choices: [
+      'terraform/bootstrap',
+      'terraform/org-accounts',
+      'terraform/shared-services',
+      'terraform/environments/dev',
+      'terraform/environments/qa',
+      'terraform/environments/stage',
+      'terraform/environments/prod'
+    ], description: 'Terraform stack to run')
+    choice(name: 'ACTION', choices: ['validate', 'plan', 'apply', 'destroy'], description: 'Terraform action')
+    string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'AWS region')
+    string(name: 'AWS_ROLE_ARN', defaultValue: '', description: 'Optional role to assume')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Terraform') {
+      steps {
+        terraformPipeline(
+          terraformDir: params.STACK,
+          action: params.ACTION,
+          awsRoleArn: params.AWS_ROLE_ARN,
+          awsRegion: params.AWS_REGION
+        )
+      }
+    }
+  }
+}

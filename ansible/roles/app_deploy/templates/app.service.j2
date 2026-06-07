@@ -1,0 +1,16 @@
+[Unit]
+Description={{ app_name }} service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ app_install_dir }}
+ExecStart=/bin/bash -lc 'echo "{{ app_name }} {{ app_version }} deployed"; sleep infinity'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

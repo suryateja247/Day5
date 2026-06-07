@@ -1,0 +1,62 @@
+@Library('enterprise-devops-platform') _
+
+pipeline {
+  agent any
+
+  options {
+    timestamps()
+    ansiColor('xterm')
+  }
+
+  parameters {
+    string(name: 'REGISTRY_URL', defaultValue: 'artifactory.example.com/docker-local', description: 'JFrog/Nexus Docker repository URL')
+    string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'AWS region')
+    string(name: 'AWS_ROLE_ARN', defaultValue: '', description: 'Optional target environment role ARN')
+    string(name: 'EKS_CLUSTER', defaultValue: 'dev-eks', description: 'Target EKS cluster')
+    string(name: 'NAMESPACE', defaultValue: 'sample-app', description: 'Kubernetes namespace')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Test') {
+      steps {
+        dir('examples/sample-app') {
+          sh 'npm test'
+        }
+      }
+    }
+
+    stage('Build Scan Push Image') {
+      steps {
+        dockerBuildPush(
+          appName: 'sample-app',
+          registryUrl: params.REGISTRY_URL,
+          imageTag: env.BUILD_NUMBER,
+          credentialsId: 'artifact-registry-creds',
+          dockerfile: 'examples/sample-app/Dockerfile',
+          contextDir: 'examples/sample-app'
+        )
+      }
+    }
+
+    stage('Deploy Kubernetes') {
+      steps {
+        kubernetesDeploy(
+          awsRoleArn: params.AWS_ROLE_ARN,
+          awsRegion: params.AWS_REGION,
+          eksCluster: params.EKS_CLUSTER,
+          namespace: params.NAMESPACE,
+          releaseName: 'sample-app',
+          chartPath: 'kubernetes/helm/app-chart',
+          imageRepository: "${params.REGISTRY_URL}/sample-app",
+          imageTag: env.BUILD_NUMBER
+        )
+      }
+    }
+  }
+}
