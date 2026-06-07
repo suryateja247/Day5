@@ -1,0 +1,6 @@
+services:
+  whataretheprerequisitesofenterprise:
+    image: whataretheprerequisitesofenterprise
+    build:
+      context: .
+      dockerfile: ./Dockerfile
