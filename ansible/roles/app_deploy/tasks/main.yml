@@ -1,0 +1,58 @@
+---
+- name: Ensure app group exists
+  ansible.builtin.group:
+    name: "{{ app_user }}"
+    state: present
+
+- name: Ensure app user exists
+  ansible.builtin.user:
+    name: "{{ app_user }}"
+    group: "{{ app_user }}"
+    system: true
+    create_home: false
+    shell: /sbin/nologin
+
+- name: Ensure app install directory exists
+  ansible.builtin.file:
+    path: "{{ app_install_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+
+- name: Download application artifact when URL is provided
+  ansible.builtin.get_url:
+    url: "{{ artifact_url }}"
+    dest: "{{ app_install_dir }}/{{ app_name }}-{{ app_version }}.artifact"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0644"
+  when: artifact_url | length > 0
+
+- name: Render systemd unit
+  ansible.builtin.template:
+    src: app.service.j2
+    dest: "/etc/systemd/system/{{ app_name }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart app
+
+- name: Enable and start app
+  ansible.builtin.systemd:
+    name: "{{ app_name }}"
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Check service status
+  ansible.builtin.systemd:
+    name: "{{ app_name }}"
+  register: app_service_status
+
+- name: Print service status for Jenkins logs
+  ansible.builtin.debug:
+    var: app_service_status.status.ActiveState

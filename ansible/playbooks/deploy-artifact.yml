@@ -1,0 +1,13 @@
+---
+- name: Deploy application artifact to servers
+  hosts: app_servers
+  become: true
+  gather_facts: true
+  vars:
+    app_name: sample-app
+    app_version: latest
+    artifact_url: ""
+    app_install_dir: "/opt/{{ app_name }}"
+    app_user: app
+  roles:
+    - app_deploy
