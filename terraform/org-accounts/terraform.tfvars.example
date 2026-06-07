@@ -1,0 +1,25 @@
+project_name = "enterprise-devops"
+aws_region   = "ap-south-1"
+
+accounts = {
+  shared_services = {
+    name  = "shared-services"
+    email = "aws-shared-services@example.com"
+  }
+  dev = {
+    name  = "dev"
+    email = "aws-dev@example.com"
+  }
+  qa = {
+    name  = "qa"
+    email = "aws-qa@example.com"
+  }
+  stage = {
+    name  = "stage"
+    email = "aws-stage@example.com"
+  }
+  prod = {
+    name  = "prod"
+    email = "aws-prod@example.com"
+  }
+}

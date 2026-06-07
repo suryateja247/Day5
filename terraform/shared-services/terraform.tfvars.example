@@ -1,0 +1,19 @@
+project_name = "enterprise-devops"
+aws_region   = "ap-south-1"
+vpc_cidr     = "10.10.0.0/16"
+cluster_name = "shared-services-eks"
+
+admin_principal_arns = [
+  "arn:aws:iam::123456789012:role/Admin",
+  "arn:aws:iam::123456789012:role/Jenkins"
+]
+
+jenkins_admin_password       = "replace-me"
+jenkins_agent_image_repository = "artifactory.example.com/docker-local/jenkins-agent-tools"
+jenkins_agent_image_tag        = "latest"
+artifact_repository_type     = "jfrog"
+artifact_admin_password      = "replace-me"
+node_instance_types          = ["t3.large"]
+node_min_size                = 2
+node_desired_size            = 3
+node_max_size                = 8

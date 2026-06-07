@@ -1,0 +1,19 @@
+project_name = "enterprise-devops"
+environment  = "dev"
+aws_region   = "ap-south-1"
+vpc_cidr     = "10.20.0.0/16"
+cluster_name = "dev-eks"
+
+admin_principal_arns = [
+  "arn:aws:iam::111111111111:role/Admin"
+]
+
+trusted_jenkins_principal_arns = [
+  "arn:aws:iam::222222222222:role/Jenkins"
+]
+
+default_app_namespace   = "sample-app"
+create_image_pull_secret = true
+registry_url            = "artifactory.example.com"
+registry_username       = "admin"
+registry_password       = "replace-me"
