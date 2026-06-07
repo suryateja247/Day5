@@ -1,0 +1,7 @@
+project_name        = "enterprise-devops"
+aws_region          = "ap-south-1"
+state_bucket_name   = "enterprise-devops-terraform-state-123456789012"
+lock_table_name     = "enterprise-devops-terraform-locks"
+terraform_admin_arns = [
+  "arn:aws:iam::123456789012:role/Admin"
+]
